@@ -19,105 +19,94 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include <setjmp.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <Thread.h>
 
 class SchedulerClass {
 public:
-  /**
-   * Function prototype (task setup and loop functions).
-   */
-  typedef void (*func_t)();
+    /**
+     * Function prototype (task setup and loop functions).
+     */
+    typedef void (*func_t)();
 
-  /**
-   * Initiate scheduler and main task with given stack size. Should
-   * be called before start of any tasks if the main task requires a
-   * stack size other than the default size. Returns true if
-   * successful otherwise false.
-   * @param[in] stackSize in bytes.
-   * @return bool.
-   */
-  static bool begin(size_t stackSize);
+    /**
+     * Initiate scheduler and main task with given stack size. Should
+     * be called before start of any tasks if the main task requires a
+     * stack size other than the default size. Returns true if
+     * successful otherwise false.
+     * @param[in] stackSize in bytes.
+     * @return bool.
+     */
+    static bool begin(size_t stackSize);
 
-  /**
-   * Start a task with given functions and stack size. Should be
-   * called from main task (in setup). The functions are executed by
-   * the task. The taskSetup function (if provided) is run once.
-   * The taskLoop function is repeatedly called. The taskSetup may be
-   * omitted (NULL). Returns true if successful otherwise false.
-   * @param[in] taskSetup function (may be NULL).
-   * @param[in] taskLoop function (may not be NULL).
-   * @param[in] stackSize in bytes.
-   * @return bool.
-   */
-  static bool start(func_t taskSetup,
-		    func_t taskLoop,
-		    size_t stackSize = DEFAULT_STACK_SIZE);
+    /**
+     * Start a task with given functions and stack size. Should be
+     * called from main task (in setup). The functions are executed by
+     * the task. The taskSetup function (if provided) is run once.
+     * The taskLoop function is repeatedly called. The taskSetup may be
+     * omitted (NULL). Returns true if successful otherwise false.
+     * @param[in] taskSetup function (may be NULL).
+     * @param[in] taskLoop function (may not be NULL).
+     * @param[in] stackSize in bytes.
+     * @return bool.
+     */
+    static Thread* start(func_t taskSetup, func_t taskLoop, size_t stackSize =
+                                DEFAULT_STACK_SIZE);
 
-  /**
-   * Context switch to next task in run queue.
-   */
-  static void yield();
+    /**
+     * Context switch to next task in run queue.
+     */
+    static void yield();
 
-  /**
-   * Return current task stack size.
-   * @return bytes
-   */
-  static size_t stack();
+    /**
+     * Return current task stack size.
+     * @return bytes
+     */
+    static size_t stack();
 
 protected:
-  /**
-   * Initiate a task with the given functions and stack. When control
-   * is yield to the task the setup function is first called and then
-   * the loop function is repeatedly called.
-   * @param[in] setup task function (may be NULL).
-   * @param[in] loop task function (may not be NULL).
-   * @param[in] stack top reference.
-   */
-  static void init(func_t setup, func_t loop, const uint8_t* stack);
-
-  /**
-   * Task run-time structure.
-   */
-  struct task_t {
-    task_t* next;		//!< Next task.
-    task_t* prev;		//!< Previous task.
-    jmp_buf context;		//!< Task context.
-    const uint8_t* stack;	//!< Task stack.
-  };
+    /**
+     * Initiate a task with the given functions and stack. When control
+     * is yield to the task the setup function is first called and then
+     * the loop function is repeatedly called.
+     * @param[in] setup task function (may be NULL).
+     * @param[in] loop task function (may not be NULL).
+     * @param[in] stack top reference.
+     */
+    static Thread* init(func_t setup, func_t loop, const uint8_t* stack);
 
 #if defined(TEENSYDUINO) && defined(__MK20DX256__)
-  /** Default stack size and stack max. */
-  static const size_t DEFAULT_STACK_SIZE = 512;
-  static const size_t STACK_MAX = 16384;
+    /** Default stack size and stack max. */
+    static const size_t DEFAULT_STACK_SIZE = 512;
+    static const size_t STACK_MAX = 16384;
 
 #elif defined(ARDUINO_ARCH_AVR)
-  /** Default stack size. */
-  static const size_t DEFAULT_STACK_SIZE = 128;
+    /** Default stack size. */
+    static const size_t DEFAULT_STACK_SIZE = 128;
 
 #elif defined(ARDUINO_ARCH_SAM)
-  /** Default stack size and stack max. */
-  static const size_t DEFAULT_STACK_SIZE = 512;
-  static const size_t STACK_MAX = 32768;
+    /** Default stack size and stack max. */
+    static const size_t DEFAULT_STACK_SIZE = 512;
+    static const size_t STACK_MAX = 32768;
 
 #elif defined(ARDUINO_ARCH_SAMD)
-  /** Default stack size and stack max. */
-  static const size_t DEFAULT_STACK_SIZE = 512;
-  static const size_t STACK_MAX = 16384;
+    /** Default stack size and stack max. */
+    static const size_t DEFAULT_STACK_SIZE = 512;
+    static const size_t STACK_MAX = 16384;
 
 #else
 #error "Scheduler.h: board not supported"
 #endif
 
-  /** Main task. */
-  static task_t s_main;
+    /** Main task. */
+    static Thread s_main;
 
-  /** Running task. */
-  static task_t* s_running;
+    /** Running task. */
+    static Thread* s_running;
 
-  /** Task stack allocation top. */
-  static size_t s_top;
+    /** Task stack allocation top. */
+    static size_t s_top;
 };
 
 /** Scheduler single-ton. */
