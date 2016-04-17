@@ -17,6 +17,8 @@
  */
 
 #include <avr/io.h>
+#include <FuncRunnable.h>
+#include <Runnable.h>
 #include <setjmp.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -47,7 +49,7 @@ SchedulerClass Scheduler;
 
 // Main task and run queue
 Thread SchedulerClass::s_main(&SchedulerClass::s_main, &SchedulerClass::s_main,
-        NULL);
+        NULL, NULL);
 
 // Reference running task
 Thread* SchedulerClass::s_running = &SchedulerClass::s_main;
@@ -61,10 +63,10 @@ bool SchedulerClass::begin(size_t stackSize) {
     return (true);
 }
 
-Thread* SchedulerClass::start(func_t taskSetup, func_t taskLoop,
+Thread* SchedulerClass::start(Runnable & runnable,
                               size_t stackSize) {
     // Check called from main task and valid task loop function
-    if ((s_running != &s_main) || (taskLoop == NULL))
+    if (s_running != &s_main)
         return NULL;
 
     // Adjust stack size with size of task context
@@ -73,8 +75,8 @@ Thread* SchedulerClass::start(func_t taskSetup, func_t taskLoop,
     // Allocate stack(s) and check if main stack top should be set
     size_t frame = RAMEND - (size_t) &frame;
     uint8_t stack[s_top - frame];
-    if (s_main.getStack() == NULL)
-        s_main.setStack(stack);
+    if (s_main.stack == NULL)
+        s_main.stack = stack;
 
 #if defined(ARDUINO_ARCH_AVR)
     // Check that the task can be allocated
@@ -99,7 +101,7 @@ Thread* SchedulerClass::start(func_t taskSetup, func_t taskLoop,
     s_top += stackSize;
 
     // Initiate task with given functions and stack top
-    return init(taskSetup, taskLoop, stack - stackSize);
+    return init(runnable, stack - stackSize);
 }
 
 void SchedulerClass::yield() {
@@ -109,33 +111,31 @@ void SchedulerClass::yield() {
 
     // Next task in run queue will continue
     do {
-        s_running = s_running->getNext();
+        s_running = s_running->next;
     } while (!s_running->isEnabled());
     longjmp(s_running->context, true);
 }
 
 size_t SchedulerClass::stack() {
     unsigned char marker;
-    return (&marker - s_running->getStack());
+    return (&marker - s_running->stack);
 }
 
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-local-addr"
-Thread* SchedulerClass::init(func_t setup, func_t loop, const uint8_t* stack) {
+Thread* SchedulerClass::init(Runnable & runnable, const uint8_t* stack) {
     // Add task last in run queue (main task)
-    Thread task(&s_main, s_main.getPrev(), stack);
+    Thread task(&s_main, s_main.prev, stack, &runnable);
 
-    s_main.getPrev()->setNext(&task);
-    s_main.setPrev(&task);
+    s_main.prev->next = &task;
+    s_main.prev = &task;
 
     // Create context for new task, caller will return
     if (setjmp(task.context)) {
-        if (setup != NULL) {
-            setup();
-        }
+        task.runnable->setup();
         while (1) {
-            loop();
+            task.runnable->loop();
             if (task.disableFlag) {
                 task.enabled = false;
                 task.disableFlag = false;
@@ -151,4 +151,5 @@ Thread* SchedulerClass::init(func_t setup, func_t loop, const uint8_t* stack) {
 extern "C" void yield(void) {
     Scheduler.yield();
 }
+
 

@@ -8,7 +8,9 @@
 #ifndef LIBRARIES_ARDUINO_SCHEDULER_THREAD_H_
 #define LIBRARIES_ARDUINO_SCHEDULER_THREAD_H_
 
+#include <Runnable.h>
 #include <setjmp.h>
+#include <stddef.h>
 #include <stdint.h>
 
 class Thread {
@@ -22,18 +24,20 @@ private:
     volatile bool enabled;
     volatile bool disableFlag;
 
-public:
-
-
     jmp_buf context;        //!< Task context.
 
-    Thread(Thread* next, Thread* prev, const uint8_t* stack) :
+    Runnable * runnable;
+
+    Thread(Thread* next, Thread* prev, const uint8_t* stack, Runnable * runnable) :
             next(next),
             prev(prev),
             stack(stack),
             enabled(true),
-            disableFlag(false){
+            disableFlag(false),
+            runnable(runnable){
     }
+
+public:
 
     bool isEnabled() {
         return enabled;
@@ -45,30 +49,6 @@ public:
 
     void disable() {
         this->disableFlag = true;
-    }
-
-    Thread* getNext() {
-        return next;
-    }
-
-    Thread* getPrev() {
-        return prev;
-    }
-
-    const uint8_t* getStack() {
-        return stack;
-    }
-
-    void setNext(Thread* next) {
-        this->next = next;
-    }
-
-    void setPrev(Thread* prev) {
-        this->prev = prev;
-    }
-
-    void setStack(const uint8_t* stack) {
-        this->stack = stack;
     }
 };
 

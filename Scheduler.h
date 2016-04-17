@@ -19,6 +19,8 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
+#include <Runnable.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <Thread.h>
@@ -46,13 +48,12 @@ public:
      * the task. The taskSetup function (if provided) is run once.
      * The taskLoop function is repeatedly called. The taskSetup may be
      * omitted (NULL). Returns true if successful otherwise false.
-     * @param[in] taskSetup function (may be NULL).
-     * @param[in] taskLoop function (may not be NULL).
+     * @param[in] runnable code to run in thread
      * @param[in] stackSize in bytes.
-     * @return bool.
+     * @return pointer to thread object.
      */
-    static Thread* start(func_t taskSetup, func_t taskLoop, size_t stackSize =
-                                DEFAULT_STACK_SIZE);
+    static Thread* start(Runnable & runnable, size_t stackSize =
+                                 DEFAULT_STACK_SIZE);
 
     /**
      * Context switch to next task in run queue.
@@ -70,11 +71,11 @@ protected:
      * Initiate a task with the given functions and stack. When control
      * is yield to the task the setup function is first called and then
      * the loop function is repeatedly called.
-     * @param[in] setup task function (may be NULL).
-     * @param[in] loop task function (may not be NULL).
+     * @param[in] runnable code to run in thread
      * @param[in] stack top reference.
+     * @return pointer to thread object.
      */
-    static Thread* init(func_t setup, func_t loop, const uint8_t* stack);
+    static Thread* init(Runnable & runnable, const uint8_t* stack);
 
 #if defined(TEENSYDUINO) && defined(__MK20DX256__)
     /** Default stack size and stack max. */
