@@ -27,14 +27,22 @@ private:
     jmp_buf context;        //!< Task context.
 
     Runnable * runnable;
+    Runnable * runnableToSet;
 
-    Thread(Thread* next, Thread* prev, const uint8_t* stack, Runnable * runnable) :
+    Thread(Thread* next, Thread* prev, const uint8_t* stack,
+           Runnable * runnable, bool enabled) :
             next(next),
             prev(prev),
             stack(stack),
-            enabled(true),
+            enabled(enabled),
             disableFlag(false),
-            runnable(runnable){
+            runnable(runnable),
+            runnableToSet(NULL) {
+    }
+
+    Thread(Thread* next, Thread* prev, const uint8_t* stack,
+           Runnable * runnable) :
+            Thread(next, prev, stack, runnable, runnable != NULL) {
     }
 
 public:
@@ -44,11 +52,24 @@ public:
     }
 
     void enable() {
-        this->enabled = true;
+        if (runnable != NULL) {
+            if (runnableToSet != NULL) {
+                runnable = runnableToSet;
+                runnableToSet = NULL;
+            }
+            this->enabled = true;
+        }
     }
 
     void disable() {
         this->disableFlag = true;
+    }
+
+    /**
+     * This function should be called only if thread is not running and is disabled
+     */
+    void setRunnable(Runnable* runnable) {
+        this->runnableToSet = runnable;
     }
 };
 

@@ -9,6 +9,17 @@
 #define LIBRARIES_ARDUINO_SCHEDULER_RUNNABLE_H_
 
 class Runnable {
+private:
+    friend class SchedulerClass;
+    bool setupExecuted = false;
+
+    void setupInternal(){
+        if (!setupExecuted) {
+            setupExecuted = true;
+            setup();
+        }
+    }
+
 public:
     virtual ~Runnable(){
     }

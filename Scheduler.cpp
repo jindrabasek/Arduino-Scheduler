@@ -49,7 +49,7 @@ SchedulerClass Scheduler;
 
 // Main task and run queue
 Thread SchedulerClass::s_main(&SchedulerClass::s_main, &SchedulerClass::s_main,
-        NULL, NULL);
+        NULL, NULL, true);
 
 // Reference running task
 Thread* SchedulerClass::s_running = &SchedulerClass::s_main;
@@ -63,7 +63,7 @@ bool SchedulerClass::begin(size_t stackSize) {
     return (true);
 }
 
-Thread* SchedulerClass::start(Runnable & runnable,
+Thread* SchedulerClass::start(Runnable * runnable,
                               size_t stackSize) {
     // Check called from main task and valid task loop function
     if (s_running != &s_main)
@@ -116,6 +116,10 @@ void SchedulerClass::yield() {
     longjmp(s_running->context, true);
 }
 
+void SchedulerClass::disable(){
+    s_running->disable();
+}
+
 size_t SchedulerClass::stack() {
     unsigned char marker;
     return (&marker - s_running->stack);
@@ -124,17 +128,17 @@ size_t SchedulerClass::stack() {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-local-addr"
-Thread* SchedulerClass::init(Runnable & runnable, const uint8_t* stack) {
+Thread* SchedulerClass::init(Runnable * runnable, const uint8_t* stack) {
     // Add task last in run queue (main task)
-    Thread task(&s_main, s_main.prev, stack, &runnable);
+    Thread task(&s_main, s_main.prev, stack, runnable);
 
     s_main.prev->next = &task;
     s_main.prev = &task;
 
     // Create context for new task, caller will return
     if (setjmp(task.context)) {
-        task.runnable->setup();
         while (1) {
+            task.runnable->setupInternal();
             task.runnable->loop();
             if (task.disableFlag) {
                 task.enabled = false;

@@ -52,13 +52,18 @@ public:
      * @param[in] stackSize in bytes.
      * @return pointer to thread object.
      */
-    static Thread* start(Runnable & runnable, size_t stackSize =
+    static Thread* start(Runnable * runnable, size_t stackSize =
                                  DEFAULT_STACK_SIZE);
 
     /**
      * Context switch to next task in run queue.
      */
     static void yield();
+
+    /**
+     * Disables currently running thread. Thread will be disabled when it exits loop.
+     */
+    static void disable();
 
     /**
      * Return current task stack size.
@@ -75,7 +80,7 @@ protected:
      * @param[in] stack top reference.
      * @return pointer to thread object.
      */
-    static Thread* init(Runnable & runnable, const uint8_t* stack);
+    static Thread* init(Runnable * runnable, const uint8_t* stack);
 
 #if defined(TEENSYDUINO) && defined(__MK20DX256__)
     /** Default stack size and stack max. */
