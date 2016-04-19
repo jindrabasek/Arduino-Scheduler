@@ -19,6 +19,7 @@
 #ifndef SCHEDULER_SEMAPHORE_H
 #define SCHEDULER_SEMAPHORE_H
 
+#include <Arduino.h>
 #include <Scheduler.h>
 
 class Semaphore {
@@ -47,6 +48,10 @@ public:
   {
     m_count += count;
     yield();
+  }
+
+  void increase(unsigned int count = 1){
+      m_count += count;
   }
 
 protected:

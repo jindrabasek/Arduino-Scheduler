@@ -19,6 +19,10 @@
 #ifndef SCHEDULER_QUEUE_H
 #define SCHEDULER_QUEUE_H
 
+#include <avr/pgmspace.h>
+#include <stdint.h>
+#include <Scheduler.h>
+
 /**
  * Template class for ring-buffer of queueing data elements.
  * @param[in] T element class.

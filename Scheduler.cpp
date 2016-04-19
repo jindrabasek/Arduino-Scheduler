@@ -106,13 +106,15 @@ Thread* SchedulerClass::start(Runnable * runnable,
 
 void SchedulerClass::yield() {
     // Caller will continue here on yield
-    if (setjmp(s_running->context))
+    if (setjmp(s_running->context)) {
         return;
+    }
 
     // Next task in run queue will continue
     do {
         s_running = s_running->next;
     } while (!s_running->isEnabled());
+
     longjmp(s_running->context, true);
 }
 

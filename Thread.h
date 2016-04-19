@@ -52,11 +52,12 @@ public:
     }
 
     void enable() {
-        if (runnable != NULL) {
+        if (runnable != NULL || runnableToSet != NULL) {
             if (runnableToSet != NULL) {
                 runnable = runnableToSet;
                 runnableToSet = NULL;
             }
+
             this->enabled = true;
         }
     }

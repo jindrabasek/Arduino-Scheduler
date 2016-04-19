@@ -19,6 +19,7 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
+#include <Arduino.h>
 #include <Runnable.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -27,6 +28,29 @@
 
 class SchedulerClass {
 public:
+#if defined(TEENSYDUINO) && defined(__MK20DX256__)
+    /** Default stack size and stack max. */
+    static const size_t DEFAULT_STACK_SIZE = 512;
+    static const size_t STACK_MAX = 16384;
+
+#elif defined(ARDUINO_ARCH_AVR)
+    /** Default stack size. */
+    static const size_t DEFAULT_STACK_SIZE = 128;
+
+#elif defined(ARDUINO_ARCH_SAM)
+    /** Default stack size and stack max. */
+    static const size_t DEFAULT_STACK_SIZE = 512;
+    static const size_t STACK_MAX = 32768;
+
+#elif defined(ARDUINO_ARCH_SAMD)
+    /** Default stack size and stack max. */
+    static const size_t DEFAULT_STACK_SIZE = 512;
+    static const size_t STACK_MAX = 16384;
+
+#else
+#error "Scheduler.h: board not supported"
+#endif
+
     /**
      * Function prototype (task setup and loop functions).
      */
@@ -52,7 +76,7 @@ public:
      * @param[in] stackSize in bytes.
      * @return pointer to thread object.
      */
-    static Thread* start(Runnable * runnable, size_t stackSize =
+    static Thread* start(Runnable * runnable = NULL, size_t stackSize =
                                  DEFAULT_STACK_SIZE);
 
     /**
@@ -81,29 +105,6 @@ protected:
      * @return pointer to thread object.
      */
     static Thread* init(Runnable * runnable, const uint8_t* stack);
-
-#if defined(TEENSYDUINO) && defined(__MK20DX256__)
-    /** Default stack size and stack max. */
-    static const size_t DEFAULT_STACK_SIZE = 512;
-    static const size_t STACK_MAX = 16384;
-
-#elif defined(ARDUINO_ARCH_AVR)
-    /** Default stack size. */
-    static const size_t DEFAULT_STACK_SIZE = 128;
-
-#elif defined(ARDUINO_ARCH_SAM)
-    /** Default stack size and stack max. */
-    static const size_t DEFAULT_STACK_SIZE = 512;
-    static const size_t STACK_MAX = 32768;
-
-#elif defined(ARDUINO_ARCH_SAMD)
-    /** Default stack size and stack max. */
-    static const size_t DEFAULT_STACK_SIZE = 512;
-    static const size_t STACK_MAX = 16384;
-
-#else
-#error "Scheduler.h: board not supported"
-#endif
 
     /** Main task. */
     static Thread s_main;
