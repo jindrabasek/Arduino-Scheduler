@@ -28,7 +28,7 @@ public:
    * Initiate semaphore with given count.
    * @param[in] count (default mutex).
    */
-  Semaphore(unsigned int count = 1) : m_count(count) {}
+  Semaphore(unsigned int count = 1) : m_count(count), m_max(m_count) {}
 
   /**
    * Wait for semaphore count.
@@ -44,18 +44,19 @@ public:
    * Signal semaphore count.
    * @param[in] count (default mutex).
    */
-  void signal(unsigned int count = 1)
+  void signal(unsigned int count = 1, bool overMax = false)
   {
-    m_count += count;
+    increase(count, overMax);
     yield();
   }
 
-  void increase(unsigned int count = 1){
-      m_count += count;
+  void increase(unsigned int count = 1, bool overMax = false){
+      m_count = m_count + count > m_max && !overMax ? m_max : m_count + count;
   }
 
 protected:
   volatile unsigned int m_count;
+  volatile unsigned int m_max;
 };
 
 #endif

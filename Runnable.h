@@ -11,7 +11,7 @@
 class Runnable {
 private:
     friend class SchedulerClass;
-    bool setupExecuted = false;
+    volatile bool setupExecuted = false;
 
     void setupInternal(){
         if (!setupExecuted) {
