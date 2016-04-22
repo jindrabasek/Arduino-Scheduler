@@ -24,11 +24,17 @@ public:
     }
 
     Thread * aquireThread(){
-        while(thread->isEnabled()) {
-            yield();
-        }
+        await(!thread->isEnabled());
         accessMutex.wait();
         return thread;
+    }
+
+    Thread * aquireThreadNonBlocking(){
+        if (!thread->isEnabled()) {
+            accessMutex.wait();
+            return thread;
+        }
+        return NULL;
     }
 
     void releaseThread(){
