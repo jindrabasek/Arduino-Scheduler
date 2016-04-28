@@ -19,36 +19,49 @@ private:
     friend class SchedulerClass;
 
     Thread* next;       //!< Next task.
-    Thread* prev;       //!< Previous task.
     const uint8_t* stack;   //!< Task stack.
-    volatile bool enabled;
-    volatile bool disableFlag;
+
+    volatile uint8_t flags;
+
+    static const int ENABLED_FLAG_BIT = 0;
+    static const int MARKED_TO_DISABLE_FLAG_BIT = ENABLED_FLAG_BIT + 1;
 
     jmp_buf context;        //!< Task context.
 
     Runnable * runnable;
     Runnable * runnableToSet;
 
-    Thread(Thread* next, Thread* prev, const uint8_t* stack,
-           Runnable * runnable, bool enabled) :
+    Thread(Thread* next, const uint8_t* stack, Runnable * runnable,
+           bool enabled) :
             next(next),
-            prev(prev),
             stack(stack),
-            enabled(enabled),
-            disableFlag(false),
+            flags(0),
             runnable(runnable),
             runnableToSet(NULL) {
+        setEnabled(enabled);
     }
 
-    Thread(Thread* next, Thread* prev, const uint8_t* stack,
-           Runnable * runnable) :
-            Thread(next, prev, stack, runnable, runnable != NULL) {
+    Thread(Thread* next, const uint8_t* stack, Runnable * runnable) :
+            Thread(next, stack, runnable,
+                    runnable != NULL) {
+    }
+
+    void setEnabled(bool enabled) {
+        bitWrite(flags, ENABLED_FLAG_BIT, enabled);
+    }
+
+    void setToDisable(bool toDisable) {
+        bitWrite(flags, MARKED_TO_DISABLE_FLAG_BIT, toDisable);
+    }
+
+    bool isToDisable() {
+        return bitRead(flags, MARKED_TO_DISABLE_FLAG_BIT);
     }
 
 public:
 
     bool isEnabled() {
-        return enabled;
+        return bitRead(flags, ENABLED_FLAG_BIT);
     }
 
     void enable() {
@@ -58,12 +71,12 @@ public:
                 runnableToSet = NULL;
             }
 
-            this->enabled = true;
+            setEnabled(true);
         }
     }
 
     void disable() {
-        this->disableFlag = true;
+        setToDisable(true);
     }
 
     /**

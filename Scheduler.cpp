@@ -48,11 +48,12 @@ extern size_t __malloc_margin;
 SchedulerClass Scheduler;
 
 // Main task and run queue
-Thread SchedulerClass::s_main(&SchedulerClass::s_main, &SchedulerClass::s_main,
+Thread SchedulerClass::s_main(&SchedulerClass::s_main,
         NULL, NULL, true);
 
 // Reference running task
 Thread* SchedulerClass::s_running = &SchedulerClass::s_main;
+Thread* SchedulerClass::s_last = &SchedulerClass::s_main;
 
 // Initial top stack for task allocation
 size_t SchedulerClass::s_top = SchedulerClass::DEFAULT_STACK_SIZE;
@@ -132,19 +133,19 @@ size_t SchedulerClass::stack() {
 #pragma GCC diagnostic ignored "-Wreturn-local-addr"
 Thread* SchedulerClass::init(Runnable * runnable, const uint8_t* stack) {
     // Add task last in run queue (main task)
-    Thread task(&s_main, s_main.prev, stack, runnable);
+    Thread task(&s_main, stack, runnable);
 
-    s_main.prev->next = &task;
-    s_main.prev = &task;
+    s_last->next = &task;
+    s_last = &task;
 
     // Create context for new task, caller will return
     if (setjmp(task.context)) {
         while (1) {
             task.runnable->setupInternal();
             task.runnable->loop();
-            if (task.disableFlag) {
-                task.enabled = false;
-                task.disableFlag = false;
+            if (task.isToDisable()) {
+                task.setEnabled(false);
+                task.setToDisable(false);
                 yield();
             }
         }

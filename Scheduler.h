@@ -112,6 +112,9 @@ protected:
     /** Running task. */
     static Thread* s_running;
 
+    /** Running task. */
+    static Thread* s_last;
+
     /** Task stack allocation top. */
     static size_t s_top;
 };
