@@ -8,8 +8,10 @@
 #ifndef LIBRARIES_ARDUINO_SCHEDULER_THREAD_H_
 #define LIBRARIES_ARDUINO_SCHEDULER_THREAD_H_
 
+#include <Arduino.h>
 #include <Runnable.h>
 #include <setjmp.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -23,8 +25,8 @@ private:
 
     volatile uint8_t flags;
 
-    static const int ENABLED_FLAG_BIT = 0;
-    static const int MARKED_TO_DISABLE_FLAG_BIT = ENABLED_FLAG_BIT + 1;
+    static const uint8_t ENABLED_FLAG_BIT = 0;
+    static const uint8_t MARKED_TO_DISABLE_FLAG_BIT = ENABLED_FLAG_BIT + 1;
 
     jmp_buf context;        //!< Task context.
 
