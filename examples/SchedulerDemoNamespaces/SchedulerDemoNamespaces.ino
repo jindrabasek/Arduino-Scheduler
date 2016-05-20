@@ -39,12 +39,12 @@ void setup()
   Serial.println(F("SchedulerDemoNamespaces: started"));
 
   // Initiate tasks
-  Scheduler.start(BlinkTask::setup, BlinkTask::loop);
-  Scheduler.start(ShellTask::setup, ShellTask::loop);
+  Scheduler::start(BlinkTask::setup, BlinkTask::loop);
+  Scheduler::start(ShellTask::setup, ShellTask::loop);
 
   // Print stack size
   TRACE("stack=");
-  Serial.println(Scheduler.stack());
+  Serial.println(Scheduler::stack());
 }
 
 void loop()

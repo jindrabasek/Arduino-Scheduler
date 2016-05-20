@@ -41,8 +41,8 @@ void setup()
   Serial.print(millis());
   Serial.println(F(":setup"));
 
-  Scheduler.start(setup2, loop2);
-  Scheduler.start(setup3, loop3);
+  Scheduler::start(setup2, loop2);
+  Scheduler::start(setup3, loop3);
 }
 
 void loop()

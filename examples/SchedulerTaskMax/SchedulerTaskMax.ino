@@ -37,7 +37,7 @@ void setup()
   Serial.flush();
 
   int tasks = 0;
-  while (Scheduler.start(NULL, counter, 64)) tasks++;
+  while (Scheduler::start(NULL, counter, 64)) tasks++;
   Serial.print(millis());
   Serial.print(F(":setup::task="));
   Serial.println(tasks);

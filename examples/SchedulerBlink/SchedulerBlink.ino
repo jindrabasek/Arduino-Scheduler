@@ -29,9 +29,9 @@ void setup()
 {
   pinMode(led, OUTPUT);
 
-  Scheduler.start(setup1, loop1);
-  Scheduler.start(setup2, loop2);
-  Scheduler.start(setup3, loop3);
+  Scheduler::start(setup1, loop1);
+  Scheduler::start(setup2, loop2);
+  Scheduler::start(setup3, loop3);
 }
 
 void loop()

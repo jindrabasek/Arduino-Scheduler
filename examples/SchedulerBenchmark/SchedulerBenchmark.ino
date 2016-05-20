@@ -84,7 +84,7 @@ void setup()
 
   // 1. Measure initiate scheduler
   start = micros();
-  Scheduler.begin(256);
+  Scheduler::begin(256);
   stop = micros();
   us = stop - start;
   Serial.print(F("1. Initiate scheduler and main task: "));
@@ -105,7 +105,7 @@ void setup()
 
   // 3. Measure start of task
   start = micros();
-  Scheduler.start(NULL, incrementCounter);
+  Scheduler::start(NULL, incrementCounter);
   stop = micros();
   us = stop - start;
   Serial.print(F("3. Start a task: "));
@@ -143,7 +143,7 @@ void setup()
   // 6. Measure max number of tasks
   start = micros();
   nr = 0;
-  while (Scheduler.start(NULL, incrementCounter)) nr++;
+  while (Scheduler::start(NULL, incrementCounter)) nr++;
   stop = micros();
   us = stop - start;
   Serial.print(F("6. Start "));

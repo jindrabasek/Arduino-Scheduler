@@ -34,7 +34,7 @@ void setup()
   Serial.begin(57600);
   while (!Serial);
   Serial.println(F("SchedulerDebounce: started"));
-  Scheduler.start(debounceSetup, debounceLoop);
+  Scheduler::start(debounceSetup, debounceLoop);
 }
 
 void loop()

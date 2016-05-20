@@ -36,7 +36,7 @@ void setup()
   Serial.begin(57600);
   while (!Serial);
   Serial.println(F("SchedulerSemaphore: started"));
-  Scheduler.start(NULL, loop1);
+  Scheduler::start(NULL, loop1);
 }
 
 void loop()

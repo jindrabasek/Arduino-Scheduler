@@ -38,9 +38,9 @@ template<int pin, unsigned int ms> void loopBlink()
 void setup()
 {
   setupBlink<13>();
-  Scheduler.start(setupBlink<10>, loopBlink<10,250>);
-  Scheduler.start(setupBlink<11>, loopBlink<11,500>);
-  Scheduler.start(setupBlink<12>, loopBlink<12,750>);
+  Scheduler::start(setupBlink<10>, loopBlink<10,250>);
+  Scheduler::start(setupBlink<11>, loopBlink<11,500>);
+  Scheduler::start(setupBlink<12>, loopBlink<12,750>);
 }
 
 void loop()

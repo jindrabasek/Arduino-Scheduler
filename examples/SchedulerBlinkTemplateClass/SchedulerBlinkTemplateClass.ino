@@ -32,9 +32,9 @@ Blink<13, 1000> blink;
 void setup()
 {
   blink.setup();
-  Scheduler.start(blink1.setup, blink1.loop);
-  Scheduler.start(blink2.setup, blink2.loop);
-  Scheduler.start(blink3.setup, blink3.loop);
+  Scheduler::start(blink1.setup, blink1.loop);
+  Scheduler::start(blink2.setup, blink2.loop);
+  Scheduler::start(blink3.setup, blink3.loop);
 }
 
 void loop()

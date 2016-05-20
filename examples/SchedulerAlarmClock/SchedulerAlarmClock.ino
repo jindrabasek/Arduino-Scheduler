@@ -36,8 +36,8 @@ void setup()
   Serial.println(F("SchedulerAlarmClock: started"));
 
   // Initiate tasks
-  Scheduler.start(Clock::setup, Clock::loop);
-  Scheduler.start(Alarm::setup, Alarm::loop);
+  Scheduler::start(Clock::setup, Clock::loop);
+  Scheduler::start(Alarm::setup, Alarm::loop);
 
   // Set alarm time
   Alarm::time = 15;

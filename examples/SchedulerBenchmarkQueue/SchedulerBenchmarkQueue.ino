@@ -46,8 +46,8 @@ void setup()
   Serial.println(F("SchedulerBenchmarkQueue: started"));
   Serial.flush();
 
-  Scheduler.start(NULL, producer);
-  Scheduler.start(NULL, consumer);
+  Scheduler::start(NULL, producer);
+  Scheduler::start(NULL, consumer);
 }
 
 void loop()

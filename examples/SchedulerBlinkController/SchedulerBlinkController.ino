@@ -42,8 +42,8 @@ void setup()
   Serial.println(F(":LED off"));
   Serial.flush();
 
-  Scheduler.start(NULL, controllerLoop);
-  Scheduler.start(NULL, buttonLoop);
+  Scheduler::start(NULL, controllerLoop);
+  Scheduler::start(NULL, buttonLoop);
 }
 
 void loop()

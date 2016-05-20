@@ -13,7 +13,7 @@ supported. Instead the task start function is extended with a setup
 function reference. Tasks are started with:
 
 ````
-Scheduler.start(taskSetup, taskLoop [,taskStackSize]).
+Scheduler::start(taskSetup, taskLoop [,taskStackSize]).
 ````
 The tasks will start execution when the main task yields. The
 _taskSetup_ is called first and once by the task followed by repeated

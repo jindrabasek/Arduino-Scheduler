@@ -45,7 +45,7 @@ void setup()
   Serial.begin(57600);
   while (!Serial);
   Serial.println(F("SchedulerDebounceTemplate: started"));
-  Scheduler.start(button.setup, button.loop);
+  Scheduler::start(button.setup, button.loop);
 }
 
 void loop()

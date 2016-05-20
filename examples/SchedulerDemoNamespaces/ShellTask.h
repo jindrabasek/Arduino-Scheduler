@@ -33,7 +33,7 @@ namespace ShellTask {
   void setup()
   {
     TRACE("stack=");
-    Serial.println(Scheduler.stack());
+    Serial.println(Scheduler::stack());
   }
 
   void loop()
@@ -56,7 +56,7 @@ namespace ShellTask {
     unsigned long start = millis();
     int c;
     TRACE("stack=");
-    Serial.println(Scheduler.stack());
+    Serial.println(Scheduler::stack());
     while ((c = Serial.read()) != '\n') {
       if (c > 0)
 	*bp++ = c;

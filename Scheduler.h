@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include <Thread.h>
 
-class SchedulerClass {
+class Scheduler {
 public:
 #if defined(TEENSYDUINO) && defined(__MK20DX256__)
     /** Default stack size and stack max. */
@@ -118,9 +118,6 @@ protected:
     /** Task stack allocation top. */
     static size_t s_top;
 };
-
-/** Scheduler single-ton. */
-extern SchedulerClass Scheduler;
 
 /**
  * Syntactic sugar for scheduler based busy-wait for condition;

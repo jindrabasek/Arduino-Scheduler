@@ -18,7 +18,7 @@
 class Thread {
 
 private:
-    friend class SchedulerClass;
+    friend class Scheduler;
 
     Thread* next;       //!< Next task.
     const uint8_t* stack;   //!< Task stack.

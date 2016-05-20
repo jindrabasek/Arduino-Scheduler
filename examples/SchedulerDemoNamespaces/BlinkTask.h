@@ -33,7 +33,7 @@ namespace BlinkTask {
   void setup()
   {
     TRACE("stack=");
-    Serial.println(Scheduler.stack());
+    Serial.println(Scheduler::stack());
 
     TRACELN("led output");
     pinMode(LED, OUTPUT);
@@ -42,7 +42,7 @@ namespace BlinkTask {
   void loop()
   {
     TRACE("stack=");
-    Serial.println(Scheduler.stack());
+    Serial.println(Scheduler::stack());
 
     TRACELN("led off");
     digitalWrite(LED, LOW);

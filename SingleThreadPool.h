@@ -19,8 +19,8 @@ class SingleThreadPool {
 
 public:
 
-    SingleThreadPool(size_t stackSize = SchedulerClass::DEFAULT_STACK_SIZE) :
-            thread(Scheduler.start(NULL, stackSize)) {
+    SingleThreadPool(size_t stackSize = Scheduler::DEFAULT_STACK_SIZE) :
+            thread(Scheduler::start(NULL, stackSize)) {
     }
 
     Thread * aquireThread(){

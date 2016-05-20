@@ -44,27 +44,24 @@ extern size_t __malloc_margin;
 #define RAMEND 0x20008000
 #endif
 
-// Single-ton
-SchedulerClass Scheduler;
-
 // Main task and run queue
-Thread SchedulerClass::s_main(&SchedulerClass::s_main,
+Thread Scheduler::s_main(&Scheduler::s_main,
         NULL, NULL, true);
 
 // Reference running task
-Thread* SchedulerClass::s_running = &SchedulerClass::s_main;
-Thread* SchedulerClass::s_last = &SchedulerClass::s_main;
+Thread* Scheduler::s_running = &Scheduler::s_main;
+Thread* Scheduler::s_last = &Scheduler::s_main;
 
 // Initial top stack for task allocation
-size_t SchedulerClass::s_top = SchedulerClass::DEFAULT_STACK_SIZE;
+size_t Scheduler::s_top = Scheduler::DEFAULT_STACK_SIZE;
 
-bool SchedulerClass::begin(size_t stackSize) {
+bool Scheduler::begin(size_t stackSize) {
     // Set main task stack size
     s_top = stackSize;
     return (true);
 }
 
-Thread* SchedulerClass::start(Runnable * runnable,
+Thread* Scheduler::start(Runnable * runnable,
                               size_t stackSize) {
     // Check called from main task and valid task loop function
     if (s_running != &s_main)
@@ -105,7 +102,7 @@ Thread* SchedulerClass::start(Runnable * runnable,
     return init(runnable, stack - stackSize);
 }
 
-void SchedulerClass::yield() {
+void Scheduler::yield() {
     // Caller will continue here on yield
     if (setjmp(s_running->context)) {
         return;
@@ -119,11 +116,11 @@ void SchedulerClass::yield() {
     longjmp(s_running->context, true);
 }
 
-void SchedulerClass::disable(){
+void Scheduler::disable(){
     s_running->disable();
 }
 
-size_t SchedulerClass::stack() {
+size_t Scheduler::stack() {
     unsigned char marker;
     return (&marker - s_running->stack);
 }
@@ -131,7 +128,7 @@ size_t SchedulerClass::stack() {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wreturn-local-addr"
-Thread* SchedulerClass::init(Runnable * runnable, const uint8_t* stack) {
+Thread* Scheduler::init(Runnable * runnable, const uint8_t* stack) {
     // Add task last in run queue (main task)
     Thread task(&s_main, stack, runnable);
 
@@ -156,7 +153,7 @@ Thread* SchedulerClass::init(Runnable * runnable, const uint8_t* stack) {
 #pragma GCC diagnostic pop
 
 extern "C" void yield(void) {
-    Scheduler.yield();
+    Scheduler::yield();
 }
 
 

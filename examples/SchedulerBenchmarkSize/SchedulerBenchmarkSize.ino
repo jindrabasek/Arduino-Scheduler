@@ -47,7 +47,7 @@ void setup()
   Serial.flush();
 
 #ifdef TASKS
-  Scheduler.start(NULL, loop);
+  Scheduler::start(NULL, loop);
 #endif
 }
 
