@@ -63,6 +63,9 @@ bool Scheduler::begin(size_t stackSize) {
 
 Thread* Scheduler::start(Runnable * runnable,
                               size_t stackSize) {
+    Serial.println();
+    Serial.println(F("--- Start thread ---"));
+
     // Check called from main task and valid task loop function
     if (s_running != &s_main)
         return NULL;
@@ -72,6 +75,17 @@ Thread* Scheduler::start(Runnable * runnable,
 
     // Allocate stack(s) and check if main stack top should be set
     size_t frame = RAMEND - (size_t) &frame;
+
+    Serial.println(F("s_top"));
+    Serial.println(s_top, 16);
+    Serial.println(s_top, 10);
+    Serial.println(F("frame"));
+    Serial.println(frame, 16);
+    Serial.println(frame, 10);
+    Serial.println(F("s_top - frame"));
+    Serial.println(s_top - frame, 16);
+    Serial.println(s_top - frame, 10);
+
     uint8_t stack[s_top - frame];
     if (s_main.stack == NULL)
         s_main.stack = stack;
@@ -79,8 +93,29 @@ Thread* Scheduler::start(Runnable * runnable,
 #if defined(ARDUINO_ARCH_AVR)
     // Check that the task can be allocated
     int HEAPEND = (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
+
+    Serial.println(F("HEAPEND"));
+    Serial.println(HEAPEND, 16);
+    Serial.println(HEAPEND, 10);
+    Serial.println(F("stackSize"));
+    Serial.println(stackSize, 16);
+    Serial.println(stackSize, 10);
+    Serial.println(F("(int) stack"));
+    Serial.println((int) stack, 16);
+    Serial.println((int) stack, 10);
+
     int STACKSTART = ((int) stack) - stackSize;
+
+    Serial.println(F("HEAPEND"));
+    Serial.println(STACKSTART, 16);
+    Serial.println(STACKSTART, 10);
+
     HEAPEND += __malloc_margin;
+
+    Serial.println(F("HEAPEND"));
+    Serial.println(HEAPEND, 16);
+    Serial.println(HEAPEND, 10);
+
     if (STACKSTART < HEAPEND)
         return NULL;
 
@@ -97,6 +132,13 @@ Thread* Scheduler::start(Runnable * runnable,
 
     // Adjust stack top for next task allocation
     s_top += stackSize;
+
+    Serial.print(F("s_top"));
+    Serial.println(s_top, 16);
+    Serial.println(s_top, 10);
+    Serial.println(F("(int)(stack - stackSize)"));
+    Serial.println((int)(stack - stackSize), 16);
+    Serial.println((int)(stack - stackSize), 10);
 
     // Initiate task with given functions and stack top
     return init(runnable, stack - stackSize);
