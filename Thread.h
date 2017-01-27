@@ -87,6 +87,10 @@ public:
     void setRunnable(Runnable* runnable) {
         this->runnableToSet = runnable;
     }
+
+	Runnable* getRunnable() {
+		return runnable;
+	}
 };
 
 #endif /* LIBRARIES_ARDUINO_SCHEDULER_THREAD_H_ */

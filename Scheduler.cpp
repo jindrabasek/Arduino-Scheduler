@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include <Scheduler.h>
 #include <Thread.h>
+#include <Task.h>
 
 // Configuration: SRAM and heap handling
 #if defined(TEENSYDUINO) && defined(__MK20DX256__)
@@ -106,7 +107,7 @@ Thread* Scheduler::start(Runnable * runnable,
 
     int STACKSTART = ((int) stack) - stackSize;
 
-    Serial.println(F("HEAPEND"));
+    Serial.println(F("STACKSTART"));
     Serial.println(STACKSTART, 16);
     Serial.println(STACKSTART, 10);
 
@@ -133,7 +134,7 @@ Thread* Scheduler::start(Runnable * runnable,
     // Adjust stack top for next task allocation
     s_top += stackSize;
 
-    Serial.print(F("s_top"));
+    Serial.println(F("s_top"));
     Serial.println(s_top, 16);
     Serial.println(s_top, 10);
     Serial.println(F("(int)(stack - stackSize)"));
@@ -154,6 +155,14 @@ void Scheduler::yield() {
     do {
         s_running = s_running->next;
     } while (!s_running->isEnabled());
+
+
+    if (s_running->getRunnable() != NULL) {
+    	Serial.print(F("Thread running "));
+    	Serial.println(static_cast<Task *>(s_running->getRunnable())->getTaskId());
+    } else {
+    	Serial.println(F("Thread running main"));
+    }
 
     longjmp(s_running->context, true);
 }
