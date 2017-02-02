@@ -56,7 +56,21 @@ Thread* Scheduler::s_last = &Scheduler::s_main;
 // Initial top stack for task allocation
 size_t Scheduler::s_top = Scheduler::DEFAULT_STACK_SIZE;
 
+#ifdef SCHEDULER_SHOW_TASK_ID_ON_LED
+#ifndef SCHEDULER_SHOW_TASK_ID_ON_LED_ENABLE_REGISTER
+#define SCHEDULER_SHOW_TASK_ID_ON_LED_ENABLE_REGISTER DDRA
+#endif
+#ifndef SCHEDULER_SHOW_TASK_ID_ON_LED_WRITE_REGISTER
+#define SCHEDULER_SHOW_TASK_ID_ON_LED_WRITE_REGISTER PORTA
+#endif
+#endif
+
+
 bool Scheduler::begin(size_t stackSize) {
+#ifdef SCHEDULER_SHOW_TASK_ID_ON_LED
+	SCHEDULER_SHOW_TASK_ID_ON_LED_ENABLE_REGISTER = 0xFF;
+#endif
+
     // Set main task stack size
     s_top = stackSize;
     return (true);
@@ -64,8 +78,11 @@ bool Scheduler::begin(size_t stackSize) {
 
 Thread* Scheduler::start(Runnable * runnable,
                               size_t stackSize) {
+
+#ifdef SCHEDULER_LOG_SERIAL
     Serial.println();
     Serial.println(F("--- Start thread ---"));
+#endif
 
     // Check called from main task and valid task loop function
     if (s_running != &s_main)
@@ -77,6 +94,7 @@ Thread* Scheduler::start(Runnable * runnable,
     // Allocate stack(s) and check if main stack top should be set
     size_t frame = RAMEND - (size_t) &frame;
 
+#ifdef SCHEDULER_LOG_SERIAL
     Serial.println(F("s_top"));
     Serial.println(s_top, 16);
     Serial.println(s_top, 10);
@@ -86,6 +104,7 @@ Thread* Scheduler::start(Runnable * runnable,
     Serial.println(F("s_top - frame"));
     Serial.println(s_top - frame, 16);
     Serial.println(s_top - frame, 10);
+#endif
 
     uint8_t stack[s_top - frame];
     if (s_main.stack == NULL)
@@ -95,6 +114,7 @@ Thread* Scheduler::start(Runnable * runnable,
     // Check that the task can be allocated
     int HEAPEND = (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
 
+#ifdef SCHEDULER_LOG_SERIAL
     Serial.println(F("HEAPEND"));
     Serial.println(HEAPEND, 16);
     Serial.println(HEAPEND, 10);
@@ -104,18 +124,23 @@ Thread* Scheduler::start(Runnable * runnable,
     Serial.println(F("(int) stack"));
     Serial.println((int) stack, 16);
     Serial.println((int) stack, 10);
+#endif
 
     int STACKSTART = ((int) stack) - stackSize;
 
+#ifdef SCHEDULER_LOG_SERIAL
     Serial.println(F("STACKSTART"));
     Serial.println(STACKSTART, 16);
     Serial.println(STACKSTART, 10);
+#endif
 
     HEAPEND += __malloc_margin;
 
+#ifdef SCHEDULER_LOG_SERIAL
     Serial.println(F("HEAPEND"));
     Serial.println(HEAPEND, 16);
     Serial.println(HEAPEND, 10);
+#endif
 
     if (STACKSTART < HEAPEND)
         return NULL;
@@ -134,12 +159,14 @@ Thread* Scheduler::start(Runnable * runnable,
     // Adjust stack top for next task allocation
     s_top += stackSize;
 
+#ifdef SCHEDULER_LOG_SERIAL
     Serial.println(F("s_top"));
     Serial.println(s_top, 16);
     Serial.println(s_top, 10);
     Serial.println(F("(int)(stack - stackSize)"));
     Serial.println((int)(stack - stackSize), 16);
     Serial.println((int)(stack - stackSize), 10);
+#endif
 
     // Initiate task with given functions and stack top
     return init(runnable, stack - stackSize);
@@ -156,13 +183,24 @@ void Scheduler::yield() {
         s_running = s_running->next;
     } while (!s_running->isEnabled());
 
-
+#if defined(SCHEDULER_LOG_SERIAL) or defined(SCHEDULER_SHOW_TASK_ID_ON_LED)
     if (s_running->getRunnable() != NULL) {
+#ifdef SCHEDULER_SHOW_TASK_ID_ON_LED
+    	SCHEDULER_SHOW_TASK_ID_ON_LED_WRITE_REGISTER = ~static_cast<Task *>(s_running->getRunnable())->getTaskId();
+#endif
+#ifdef SCHEDULER_LOG_SERIAL
     	Serial.print(F("Thread running "));
     	Serial.println(static_cast<Task *>(s_running->getRunnable())->getTaskId());
+#endif
     } else {
+#ifdef SCHEDULER_SHOW_TASK_ID_ON_LED
+    	SCHEDULER_SHOW_TASK_ID_ON_LED_WRITE_REGISTER = ~0;
+#endif
+#ifdef SCHEDULER_LOG_SERIAL
     	Serial.println(F("Thread running main"));
+#endif
     }
+#endif
 
     longjmp(s_running->context, true);
 }
